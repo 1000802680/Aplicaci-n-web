@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>App: Login / Registro - Demo</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#7c3aed; --muted:#94a3b8; --glass: rgba(255,255,255,0.04);
+      --success:#16a34a; --danger:#ef4444; --radius:14px; --pad:18px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(180deg,#071022 0%, #071a2a 60%);color:#e6eef8;display:flex;align-items:center;justify-content:center;padding:28px}
+    .container{width:100%;max-width:1100px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:20px;padding:24px;display:grid;grid-template-columns:420px 1fr;gap:20px;box-shadow:0 10px 30px rgba(2,6,23,0.7)}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{margin:0;font-size:20px}
+    p.lead{color:var(--muted);margin:6px 0 20px}
+
+    /* Card styles */
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+
+    /* Forms */
+    form{display:flex;flex-direction:column;gap:12px}
+    label{font-size:13px;color:var(--muted)}
+    input[type=text],input[type=password],input[type=email]{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;color:inherit;font-size:14px}
+    .row{display:flex;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#4f46e5);border:none;color:white;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Right pane */
+    .right{padding:20px}
+    .actions{display:flex;gap:10px;align-items:center}
+
+    /* Dashboard */
+    .dashboard{display:flex;flex-direction:column;gap:14px}
+    .user-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent)}
+    .avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#111827,#0f1724);display:grid;place-items:center;font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
+
+    footer{color:var(--muted);font-size:13px;margin-top:8px}
+
+    /* responsive */
+    @media (max-width:900px){.container{grid-template-columns:1fr;}}
+
+    /* subtle animations */
+    .fade-in{animation:fadeIn .28s ease both}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+    .hint{font-size:12px;color:var(--muted)}
+    .danger{color:var(--danger)}
+    .success{color:var(--success)}
+    .control-row{display:flex;gap:10px;align-items:center}
+
+    .export-area{background:#031124;padding:12px;border-radius:10px;border:1px dashed rgba(255,255,255,0.03);font-family:monospace;font-size:13px;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <div class="container fade-in">
+    <div>
+      <div class="brand">
+        <div class="logo">AP</div>
+        <div>
+          <h1>Aplicación Demo — Acceso Seguro</h1>
+          <p class="lead">Inicia sesión o regístrate. Los datos se guardan localmente (simulando una base de datos).</p>
+        </div>
+      </div>
+
+      <div class="card" id="auth-area">
+        <!-- LOGIN VIEW -->
+        <div id="login-view">
+          <form id="login-form">
+            <label>Usuario</label>
+            <input id="login-username" type="text" placeholder="ej. thiago23" required />
+
+            <label>Contraseña</label>
+            <div class="row">
+              <input id="login-password" type="password" placeholder="********" required />
+              <button type="button" class="btn ghost" id="toggle-login-pass">Mostrar</button>
+            </div>
+
+            <div class="row" style="justify-content:space-between;align-items:center;margin-top:6px">
+              <div class="muted">¿No tienes cuenta? <a href="#" id="go-register">Regístrate</a></div>
+              <div>
+                <button class="btn" type="submit">Iniciar Sesión</button>
+              </div>
+            </div>
+            <div id="login-msg" class="hint"></div>
+          </form>
+        </div>
+
+        <!-- REGISTER VIEW -->
+        <div id="register-view" style="display:none">
+          <form id="register-form">
+            <label>Nombre completo</label>
+            <input id="reg-name" type="text" placeholder="Ana María Pérez" required />
+
+            <label>Cédula / ID</label>
+            <input id="reg-id" type="text" placeholder="12345678" required />
+
+            <label>Teléfono</label>
+            <input id="reg-phone" type="text" placeholder="+57 300 000 0000" required />
+
+            <label>Correo electrónico</label>
+            <input id="reg-email" type="email" placeholder="tunombre@correo.com" required />
+
+            <label>Usuario</label>
+            <input id="reg-username" type="text" placeholder="thiago23" required />
+
+            <label>Contraseña</label>
+            <div class="row">
+              <input id="reg-password" type="password" placeholder="Crea una contraseña" required />
+              <button type="button" class="btn ghost" id="toggle-reg-pass">Mostrar</button>
+            </div>
+
+            <div class="control-row">
+              <button type="button" class="btn ghost" id="generate-data">Generar datos</button>
+              <button type="submit" class="btn">Crear cuenta</button>
+              <button type="button" class="btn ghost" id="back-to-login">Volver</button>
+            </div>
+            <div id="reg-msg" class="hint"></div>
+          </form>
+        </div>
+      </div>
+
+      <footer style="margin-top:12px">Hecho con ❤️ — Demo local (localStorage). Puedes exportar/respaldar los usuarios desde el panel.</footer>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>Panel de acceso</h3>
+        <p class="small">Accede con tu usuario y contraseña. Si no tienes, regístrate y usa "Generar datos" para autocompletar un perfil de ejemplo.</p>
+
+        <div style="margin-top:12px" id="quick-info">
+          <div class="small">Usuarios registrados: <strong id="count-users">0</strong></div>
+          <div style="margin-top:8px" class="row">
+            <button class="btn ghost" id="show-users">Ver usuarios</button>
+            <button class="btn" id="export-users">Exportar JSON</button>
+            <button class="btn ghost" id="import-users">Importar JSON</button>
+          </div>
+        </div>
+
+        <div id="users-list" style="margin-top:12px;display:none"></div>
+
+        <div id="dashboard-area" style="margin-top:12px;display:none">
+          <h3>Dashboard</h3>
+          <div id="dashboard" class="dashboard"></div>
+        </div>
+
+      </div>
+
+      <div style="height:16px"></div>
+      <div class="card" style="margin-top:12px">
+        <h4>Export / Import (simula backup)</h4>
+        <div style="margin-top:8px">
+          <div class="export-area" id="export-area">No hay datos exportados aún.</div>
+          <div style="margin-top:8px" class="row">
+            <button class="btn" id="copy-json">Copiar JSON</button>
+            <button class="btn ghost" id="clear-db">Borrar usuarios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ---------------------------
+// Utilidades: base de datos local
+// ---------------------------
+const DB_KEY = 'app_demo_users_v1';
+function loadUsers(){
+  const raw = localStorage.getItem(DB_KEY);
+  if(!raw) return [];
+  try{return JSON.parse(raw) || []}catch(e){console.error(e);return []}
+}
+function saveUsers(users){
+  localStorage.setItem(DB_KEY, JSON.stringify(users));
+  refreshCounts();
+}
+function findUserByUsername(username){
+  const users = loadUsers();
+  return users.find(u => u.username.toLowerCase() === username.toLowerCase());
+}
+
+// ---------------------------
+// Inicialización: crear un usuario demo si no existe
+// ---------------------------
+(function initDemo(){
+  let users = loadUsers();
+  if(users.length === 0){
+    users.push({
+      id:1,
+      name:'Thiago Demo',
+      cedula:'1001001001',
+      phone:'+57 300 123 4567',
+      email:'thiago.demo@example.com',
+      username:'thiago',
+      password:'Demo123!' // nota: en producción nunca almacenar en claro
+    });
+    saveUsers(users);
+  }
+  refreshCounts();
+})();
+
+function refreshCounts(){
+  document.getElementById('count-users').textContent = loadUsers().length;
+  document.getElementById('export-area').textContent = JSON.stringify(loadUsers(), null, 2);
+}
+
+// ---------------------------
+// Login
+// ---------------------------
+const loginForm = document.getElementById('login-form');
+loginForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const u = document.getElementById('login-username').value.trim();
+  const p = document.getElementById('login-password').value;
+  const msg = document.getElementById('login-msg');
+  const user = findUserByUsername(u);
+  if(!user){ msg.textContent = 'Usuario no encontrado.'; return; }
+  if(user.password !== p){ msg.textContent = 'Contraseña incorrecta.'; return; }
+  msg.textContent = '';
+  goDashboard(user);
+});
+
+// Toggle password visibility
+document.getElementById('toggle-login-pass').addEventListener('click', ()=>{
+  const p = document.getElementById('login-password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+});
+
+// ---------------------------
+// Register
+// ---------------------------
+const registerForm = document.getElementById('register-form');
+registerForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const user = {
+    id: Date.now(),
+    name: document.getElementById('reg-name').value.trim(),
+    cedula: document.getElementById('reg-id').value.trim(),
+    phone: document.getElementById('reg-phone').value.trim(),
+    email: document.getElementById('reg-email').value.trim(),
+    username: document.getElementById('reg-username').value.trim(),
+    password: document.getElementById('reg-password').value
+  };
+  const msg = document.getElementById('reg-msg');
+  if(findUserByUsername(user.username)){
+    msg.textContent = 'El usuario ya existe. Escoge otro nombre de usuario.'; return;
+  }
+  const users = loadUsers();
+  users.push(user);
+  saveUsers(users);
+  msg.textContent = 'Cuenta creada con éxito. Ya puedes iniciar sesión.';
+  // auto-fill login
+  document.getElementById('login-username').value = user.username;
+  document.getElementById('login-password').value = user.password;
+  // switch to login after short delay
+  setTimeout(()=>{ showLogin(); document.getElementById('login-msg').textContent = 'Cuenta creada — inicia sesión.'; }, 800);
+});
+
+document.getElementById('toggle-reg-pass').addEventListener('click', ()=>{
+  const p = document.getElementById('reg-password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+});
+
+// Generate example data
+function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function generateSample(){
+  const names = ['Carlos Eduardo','Mariana López','Sofía Gómez','Juan Pérez','Lucía Fernández','Miguel Ángel','Valentina Rojas'];
+  const name = names[randomInt(0,names.length-1)];
+  const ced = String(randomInt(10000000,99999999));
+  const phone = '+57 ' + randomInt(300,399) + ' ' + randomInt(100,999) + ' ' + randomInt(1000,9999);
+  const email = name.split(' ')[0].toLowerCase()+'.'+randomInt(10,99)+'@example.com';
+  const username = name.split(' ')[0].toLowerCase()+randomInt(10,99);
+  const password = 'Pass'+randomInt(100,999)+'!';
+  return {name,ced,phone,email,username,password};
+}
+
+document.getElementById('generate-data').addEventListener('click', ()=>{
+  const s = generateSample();
+  document.getElementById('reg-name').value = s.name;
+  document.getElementById('reg-id').value = s.ced;
+  document.getElementById('reg-phone').value = s.phone;
+  document.getElementById('reg-email').value = s.email;
+  document.getElementById('reg-username').value = s.username;
+  document.getElementById('reg-password').value = s.password;
+  document.getElementById('reg-msg').textContent = 'Datos generados automáticamente. Ajusta si deseas.';
+});
+
+// Navigation links
+document.getElementById('go-register').addEventListener('click', e=>{e.preventDefault(); showRegister();});
+document.getElementById('back-to-login').addEventListener('click', ()=>{ showLogin(); });
+function showRegister(){ document.getElementById('login-view').style.display='none'; document.getElementById('register-view').style.display='block'; }
+function showLogin(){ document.getElementById('login-view').style.display='block'; document.getElementById('register-view').style.display='none'; }
+
+// ---------------------------
+// Users list, export/import
+// ---------------------------
+document.getElementById('show-users').addEventListener('click', ()=>{
+  const list = loadUsers();
+  const container = document.getElementById('users-list');
+  container.innerHTML = '';
+  if(list.length === 0){ container.innerHTML = '<div class="small">No hay usuarios.</div>'; container.style.display='block'; return; }
+  list.forEach(u=>{
+    const el = document.createElement('div'); el.className='user-card';
+    el.innerHTML = `
+      <div class="avatar">${(u.name||u.username).slice(0,1).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>${u.name || '-'} </strong> <div class="small">@${u.username}</div></div>
+          <div><button class="btn ghost" data-username="${u.username}">Iniciar como</button></div>
+        </div>
+        <div class="small">${u.email} • ${u.phone} • ID:${u.cedula || u.cedula}</div>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+  // attach event to "Iniciar como"
+  container.querySelectorAll('button[data-username]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const u = btn.getAttribute('data-username');
+      const user = findUserByUsername(u);
+      if(user) goDashboard(user);
+    });
+  });
+  container.style.display = container.style.display === 'block' ? 'none' : 'block';
+});
+
+// Export JSON copy
+document.getElementById('copy-json').addEventListener('click', async ()=>{
+  const data = JSON.stringify(loadUsers(), null, 2);
+  try{ await navigator.clipboard.writeText(data); alert('JSON copiado al portapapeles.'); }catch(e){ prompt('Copia manualmente este JSON:', data); }
+});
+
+// Export button
+document.getElementById('export-users').addEventListener('click', ()=>{
+  document.getElementById('export-area').textContent = JSON.stringify(loadUsers(), null, 2);
+  alert('JSON actualizado en el panel de exportación.');
+});
+
+// Import (paste JSON)
+document.getElementById('import-users').addEventListener('click', ()=>{
+  const text = prompt('Pega aquí el JSON de usuarios para importar (reemplaza todo):');
+  if(!text) return; try{
+    const arr = JSON.parse(text);
+    if(!Array.isArray(arr)) throw new Error('Formato inválido');
+    saveUsers(arr.map(u=>({id:u.id||Date.now(), name:u.name||'', cedula:u.cedula||u.id||'', phone:u.phone||'', email:u.email||'', username:u.username||('u'+Date.now()), password:u.password||'123456'})));
+    alert('Usuarios importados correctamente.');
+  }catch(e){ alert('Error al importar: ' + e.message); }
+});
+
+// Clear DB (danger)
+document.getElementById('clear-db').addEventListener('click', ()=>{
+  if(!confirm('¿Borrar todos los usuarios registrados? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem(DB_KEY);
+  refreshCounts();
+  alert('Usuarios eliminados. Se restaurará usuario demo al recargar la página.');
+  setTimeout(()=>location.reload(),300);
+});
+
+// ---------------------------
+// Dashboard
+// ---------------------------
+function goDashboard(user){
+  document.getElementById('auth-area').style.display='none';
+  document.getElementById('dashboard-area').style.display='block';
+  document.getElementById('users-list').style.display='none';
+  const dash = document.getElementById('dashboard');
+  dash.innerHTML = '';
+  const card = document.createElement('div'); card.className='user-card';
+  card.innerHTML = `
+    <div class="avatar">${(user.name||user.username).slice(0,1).toUpperCase()}</div>
+    <div style="flex:1">
+      <strong>${user.name}</strong>
+      <div class="small">@${user.username} • ${user.email}</div>
+      <div class="small">Tel: ${user.phone} • ID: ${user.cedula || ''}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" id="logout-btn">Cerrar sesión</button>
+      <button class="btn ghost" id="create-user-btn">Crear usuario</button>
+    </div>
+  `;
+  dash.appendChild(card);
+
+  document.getElementById('logout-btn').addEventListener('click', ()=>{
+    document.getElementById('auth-area').style.display = 'block';
+    document.getElementById('dashboard-area').style.display = 'none';
+    document.getElementById('login-msg').textContent = 'Sesión cerrada.';
+  });
+
+  document.getElementById('create-user-btn').addEventListener('click', ()=>{
+    // show register view and prefill random data
+    showRegister();
+    document.getElementById('reg-msg').textContent = '';
+    const s = generateSample();
+    document.getElementById('reg-name').value = s.name;
+    document.getElementById('reg-id').value = s.ced;
+    document.getElementById('reg-phone').value = s.phone;
+    document.getElementById('reg-email').value = s.email;
+    document.getElementById('reg-username').value = s.username;
+    document.getElementById('reg-password').value = s.password;
+  });
+}
+
+// final refresh
+refreshCounts();
+
+</script>
+</body>
+</html>
